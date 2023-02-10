@@ -1,0 +1,211 @@
+PinPoint Host Version: 2.14.2.0
+
+
+
+Product ID: 80338
+
+Product Type: Litetrack LR
+
+Product Status: Inactive
+
+Current Firmware: V8.106.0
+
+
+
+Magnet Controlled ON/OFF: On
+
+Magnet Applied: No
+
+
+
+Backup Battery Available: Yes
+
+Fast Switch to Backup Battery Enabled: No
+
+Solar Charger Available: No
+
+Solar Function Enabled: No
+
+
+
+GPS Enabled: Yes
+
+Fix Type: Standard Fix
+
+GPS Timeout: 70 seconds
+
+Data Format: Basic Data Format
+
+Fix Strategy: Standard Economy
+
+Cold Start Frequency: Every 2 hours
+
+Target Fix: 3rd fix
+
+Current GPS Schedule: Advanced
+
+GPS Schedule Details:
+
+Daily Cycle      Rule Period [yyyy-mm-dd]: 2021-11-08  to 2022-07-01     Daily Period [hh:mm]: 00:00  to 23:59     Fix Interval [hh:mm]: 00:10
+
+
+
+Beacon Enabled: Yes
+
+Current Beacon Schedule: SunRise/SunSet
+SunRise: 00:00
+SunSet: 24:00
+
+Beacon Frequency[MHz]: 151.140
+
+Beacon Type: Beeper
+
+Beacon ID: NA
+
+Beacon Transmit Power: 5 dBm
+
+Beacon Pulse Width [ms]: 12
+
+Beacon Burst Rate [BPM]: 40
+
+
+
+RF Communication Enabled: No
+
+RF Communication Transmit Power: Disabled
+
+Current RF Communication Schedule: Disabled
+
+
+
+Proximity Enabled: No
+
+Both GPS and Proximity Enabled: No
+
+RF Comm/Proximity/Dropoff Frequency[MHz]: Disabled
+
+Current Proximity Schedule: Disabled
+
+Current Iridium Schedule: NA
+
+Current Proximity GPS Schedule: Disabled
+
+Proximity: Disabled
+
+Proximity Rx RSSI Threshold [dBm]: Disabled
+
+Proximity Seperation Time [min]: Disabled
+
+Proximity Tx Power [dBm]: Disabled
+
+Proximity Tx Burst Rate [BPM]: Disabled
+
+Proximity Transmission Enabled: No
+
+
+
+
+
+Virtual Fence: Disabled
+
+Virtual Fence Definition/Schedule: Disabled
+
+
+
+Low Temperature Monitor Enabled: Yes
+
+Low Temperature Threshold [C]: -30
+
+Temperature Sensor Calibrated: 3-Point
+
+
+
+Mortality Period [m]: 1440 minutes
+
+
+
+Activity: Average Data (300s)
+
+Current Activity Schedule: Yes
+
+Activity Schedule Details:
+
+Activity Rule Period [yyyy-mm-dd]: 2021-11-07  to 2022-07-01     Daily Period [hh:mm]: 00:00  to 23:59
+
+Both GPS and Low Activity Enabled: No
+
+Low Activity Duration [hour]: 0.0
+
+Low Activity Enter Threshold: 10
+
+Low Activity Exit Threshold: 20
+
+Current Low-Activity GPS Schedule: Disabled
+
+Both GPS and High Activity Enabled: No
+
+High Activity Duration [s]: 0
+
+High Activity Enter Threshold: 200
+
+High Activity Timeout [min]: 10
+
+Current High-Activity GPS Schedule: Disabled
+
+
+
+
+Dropoff Enabled: No
+
+Dropoff Release Type: Disabled
+
+
+
+Birth Alert Enabled: No
+
+Alert Test Duration: Disabled
+
+Temperature Measure Pattern: Disabled
+
+
+
+Camera Control Enabled: No
+
+Camera Option: Independent
+
+
+
+Recharge Counter: 9
+
+Total Number of GPS Fixes: 20085
+
+Total Number of Mortality Events: 1
+
+Total Number of Activity Data: 40173
+
+Total Number of Proximity Data: 0
+
+Total GPS On Time[s]: 0
+
+
+
+Product Time [GMT]: 2021-11-07 23:59:22
+
+Next Scheduled Fix [GMT]: 2021-11-08 00:00:00
+
+Next Alarm [GMT]: 0000-00-00 00:00:00
+
+
+
+Fawn IDs: 0;0;0
+
+Fawn Separation Duration [h]: 0
+
+
+
+Exernal Memory: 32 MB
+
+
+
+Debugging Info: 0-0-0-6
+
