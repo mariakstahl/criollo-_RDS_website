@@ -1,0 +1,11 @@
+.Rproj.user
+**/cattle/outputs
+**/cattle/raw data/collar data/CollarData_1120_0521
+.Rhistory
+*.png
+*.cpg
+*.dbf
+*.prj
+*.shp
+*.xml
+*.shx
