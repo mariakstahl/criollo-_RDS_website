@@ -1,0 +1,152 @@
+---
+title: "combine ats and lotek collar data"
+author: "Maria Stahl"
+date: "1/19/2023"
+output: html_document
+---
+
+-------- Description --------
+This code reads in all the Lotek and ATS GPS .csv files, organizes them into
+the same format, and combines them into one .csv with the associated cow
+metadata (ear tag and breed).
+
+Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
+This will be an issue in the future when we start re-using Lotek collars and
+have multiple cattle IDs associated with each Lotek collar. When this happens,
+I will need to add a section of code that looks not only at the collar ID but
+also at the dates to match collars to cows.
+------------------------------
+
+```{r}
+rm(list = ls())
+```
+
+## Load necessary packages
+```{r}
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(purrr)
+```
+
+## Read Lotek collar data
+```{r}
+# gps file names
+lotek.collar.files.march =
+  list.files(path = "../raw data/collar data/2022-03_collarData/gps", pattern = "*.csv", full.names = T)
+
+lotek.collar.files.june =
+  list.files(path = "../raw data/collar data/2022-06_collarData/gps", pattern = "*.csv", full.names = T)
+
+lotek.collar.files.all = c(lotek.collar.files.march, lotek.collar.files.june)
+
+# collar numbers
+lotek.collar.numbers = lotek.collar.files.all %>%
+  substring(nchar(.)-28, nchar(.)-24)
+
+# collar data
+lotek.collar.list = lotek.collar.files.all %>%
+  map(~fread(.))
+
+# add column with collar number
+for(i in seq_along(lotek.collar.list)){
+  lotek.collar.list[[i]]$CollarSerialNumber <- lotek.collar.numbers[i]
+}
+
+cattle.dat.lotek = lotek.collar.list %>%
+  bind_rows()
+
+
+```
+
+## Read ATS data
+```{r}
+# gps file names
+ats.files =
+  list.files(path = "../raw data/collar data/ats", pattern = "*.txt", full.names = T)
+
+# collar data
+ats.collar.list = ats.files %>%
+  map(~fread(.))
+
+# create data.frame from list
+cattle.dat.ATS = ats.collar.list %>%
+  bind_rows()
+```
+
+## Combine collar data
+```{r}
+# what column names are we working with here?
+names(cattle.dat.ATS)
+names(cattle.dat.lotek)
+
+### add date_time column to both data.frames ----
+# Lotek
+cattle.dat.lotek$date_time =
+  as.POSIXct(cattle.dat.lotek$`GMT Time`,
+             format = '%m/%d/%Y %H:%M:%S %p', tz = 'GMT')
+# ATS
+cattle.dat.ATS$Date = as.Date(cattle.dat.ATS$Julianday, 
+                              origin = '2021-12-31')
+cattle.dat.ATS$date_time = paste(cattle.dat.ATS$Hour, 
+                                 cattle.dat.ATS$Minute, sep = ':') %>%
+  paste(cattle.dat.ATS$Date, .) %>%
+  as.POSIXct(format = '%Y-%m-%d %H:%M')
+
+### rename NumSat column ----
+cattle.dat.lotek = cattle.dat.lotek %>%
+  rename(NumSats = Satellites)
+
+### add DOP column to ATS
+cattle.dat.ATS = cattle.dat.ATS %>%
+  mutate(DOP = NA)
+
+### add HDOP column to Lotek
+cattle.dat.lotek = cattle.dat.lotek %>%
+  mutate(HDOP = NA)
+
+### drop unneeded columns ----
+cattle.dat.ATS = cattle.dat.ATS %>%
+  dplyr::select(c('CollarSerialNumber', 'date_time', 'Latitude', 'Longitude',
+                  'Temperature', 'NumSats', 'DOP', 'HDOP'))
+cattle.dat.lotek = cattle.dat.lotek %>%
+  dplyr::select(c('CollarSerialNumber', 'date_time', 'Latitude', 'Longitude',
+                  'Temperature', 'NumSats', 'DOP', 'HDOP'))
+
+### create final data.frame ----
+cattle.dat = rbind(cattle.dat.ATS, cattle.dat.lotek) %>%
+  mutate(CollarSerialNumber = as.integer(CollarSerialNumber))
+
+```
+
+### add cow ear tag and breed info
+```{r}
+## read in collar metadata
+collar.metadata = 
+  read.csv('../raw data/collar_pedometer-metadata/collar data log.csv') %>%
+  mutate(download_start = as.POSIXct(download_start, format = '%m/%d/%Y')) %>%
+  mutate(download_end = as.POSIXct(download_end, format = '%m/%d/%Y')) %>%
+  rename(CollarSerialNumber = collar.no)
+
+collar.metadataS22.S23 = collar.metadata %>%
+  filter(download_end > as.POSIXct("2021-11-10 MST"))
+
+cattle.dat.tags = left_join(cattle.dat, collar.metadataS22.S23[,1:3])
+
+```
+
+### clean collar data
+## NOTE: for now, I'm just removing all points with coordinates (0,0).
+## I will need to change this to filter points based on NumSats or DOP/HDOP
+```{r}
+cattle.dat.tags = cattle.dat.tags %>%
+  filter(Latitude != 0 &
+           Longitude != 0)
+```
+
+### save output to .csv
+```{r}
+write.csv(cattle.dat.tags, file = '../processed data/2021-2022_GPS-combined.csv',
+          row.names = F)
+```
+

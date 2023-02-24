@@ -1,0 +1,230 @@
+---
+title: "create_cattle_db"
+author: "maria stahl"
+date: "2023-02-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list = ls())
+```
+
+### load in packages
+```{r}
+library(DBI)
+library(tidyverse)
+library(data.table)
+```
+
+### create cattle.db
+```{r}
+cattle_db = dbConnect(RSQLite::SQLite(), '../cattle.db')
+```
+
+### import metadata .csv files
+```{r}
+# cows: old tag, new tag, breed
+cows = read.csv('../raw data/tag-breed-info.csv') %>%
+  mutate(tag_no = ifelse(new_tag == '', old_tag, new_tag))
+
+# metrics: date, new tag, weight, bcs
+metrics = 
+  read.csv('../raw data/collar_pedometer-metadata/collars.peds_all.csv') %>%
+  rename(old_tag = tag_no) %>%
+  mutate(tag_no = ifelse(new_tag == '', old_tag, new_tag)) %>%
+  dplyr::select(date, tag_no, weight, BCS)
+  
+
+# diet: collection date, new_tag, tube_id, process date
+diet = read.csv('../raw data/fecal sample ID.csv') %>%
+  dplyr::select(Collection_Date, Tag, New_Tag, Tube, Processing_Date) %>%
+  rename(old_tag = Tag, new_tag = New_Tag, collection_date = Collection_Date,
+         processing_date = Processing_Date, tube = Tube) %>%
+  filter(tube != '')
+
+# deployments: new_tag, collar_no, download_start, download_end
+deployments = 
+  read.csv('../raw data/collar_pedometer-metadata/collar data log.csv') %>%
+  dplyr::select(tag.no, collar.no, download_start, download_end) %>%
+  rename(tag_no = tag.no, collar_no = collar.no)
+
+# collars: collar_no, brand, status
+collars = read.csv('../raw data/collar_pedometer-metadata/collars.csv') %>%
+  dplyr::select(Serial.No, status, brand) %>%
+  rename(collar_no = Serial.No)
+
+# gps_raw: date, collar_no, temp, lat, long, DOP, satellites
+gps_raw = read.csv('../processed data/2021-2022_GPS-combined.csv') %>%
+  rename(collar_no = CollarSerialNumber, date = date_time)
+
+```
+
+### add tag_no column to diet data
+```{r}
+for(i in 1:nrow(diet)){
+  diet$tag_no[i] = ifelse(diet$new_tag[i] == '',
+                          cows[which(cows$old_tag == diet$old_tag[i]),]$tag_no,
+                          diet$new_tag[i])
+}
+```
+
+### create tables in SQL
+#### cows
+```{r}
+# create table
+dbExecute(cattle_db, 
+  'CREATE TABLE cows (
+      tag_no varchar(4) NOT NULL,
+      old_tag varchar(4),
+      new_tag varchar(4),
+      breed varchar(6),
+      PRIMARY KEY (tag_no));')
+
+# populate table
+dbWriteTable(cattle_db, 'cows', cows, append = T)
+dbGetQuery(cattle_db, 'SELECT * FROM cows LIMIT 10;')
+```
+
+#### metrics
+```{r}
+# create table
+dbExecute(cattle_db, 
+  'CREATE TABLE metrics (
+      metric_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tag_no varchar(4),
+      weight double,
+      BCS double,
+      date text,
+      FOREIGN KEY(tag_no) REFERENCES cows(tag_no));')
+
+# populate table
+metrics$metric_id = 1:nrow(metrics)
+metrics = metrics[, c('metric_id', 'tag_no', 'weight', 'BCS', 'date')]
+dbWriteTable(cattle_db, 'metrics', metrics, append = T)
+dbGetQuery(cattle_db, 'SELECT * FROM metrics LIMIT 10;')
+```
+
+#### diet
+```{r}
+# create table
+dbExecute(cattle_db, 
+  'CREATE TABLE diet (
+      collection_date text,
+      old_tag varchar(4),
+      new_tag varchar(4),
+      tube text,
+      processing_date text,
+      tag_no varchar(4),
+      PRIMARY KEY (tube),
+      FOREIGN KEY (tag_no) REFERENCES cows(tag_no));')
+
+# populate table
+dbWriteTable(cattle_db, 'diet', diet, append = T)
+dbGetQuery(cattle_db, 'SELECT * FROM diet LIMIT 10;')
+```
+
+#### collars
+```{r}
+# create table
+dbExecute(cattle_db, 
+  'CREATE TABLE collars (
+      collar_no double,
+      status text,
+      brand text,
+      PRIMARY KEY (collar_no));')
+
+
+# populate table
+dbWriteTable(cattle_db, 'collars', collars, append = T)
+dbGetQuery(cattle_db, 'SELECT * FROM collars LIMIT 10;')
+```
+
+#### deployments
+```{r}
+# create table
+dbExecute(cattle_db, 
+  'CREATE TABLE deployments (
+      deployment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tag_no varchar(4),
+      collar_no double,
+      download_start text,
+      download_end text,
+      FOREIGN KEY(tag_no) REFERENCES cows(tag_no)
+      FOREIGN KEY(collar_no) REFERENCES collars(collar_no));')
+
+# populate table
+deployments$deployment_id = 1:nrow(deployments)
+deployments = deployments[, c('deployment_id', 'tag_no', 'collar_no', 
+                              'download_start', 'download_end')]
+dbWriteTable(cattle_db, 'deployments', deployments, append = T)
+dbGetQuery(cattle_db, 'SELECT * FROM deployments LIMIT 10;')
+```
+
+#### gps_raw
+```{r}
+# create table
+dbExecute(cattle_db, 
+  'CREATE TABLE gps_raw (
+      fix_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      collar_no integer,
+      date text,
+      Latitude double,
+      Longitude double,
+      Temperature double,
+      NumSats integer,
+      FOREIGN KEY(collar_no) REFERENCES collars(collar_no));')
+
+# populate table
+gps_raw$fix_id = 1:nrow(gps_raw)
+gps_raw = gps_raw[, c('fix_id', 'collar_no', 'date', 'Latitude', 'Longitude',
+                      'Temperature', 'NumSats')]
+dbWriteTable(cattle_db, 'gps_raw', gps_raw, append = T)
+dbGetQuery(cattle_db, 'SELECT * FROM gps_raw LIMIT 10;')
+```
+
+#### link gps_raw to tag_no
+```{r}
+# create table
+dbExecute(cattle_db,
+  'CREATE TABLE gps (
+      loc_id INTEGER PRIMARY KEY,
+      collar_no integer,
+      tag_no varchar(4),
+      date text,
+      Latitude double,
+      Longitude double,
+      Temperature double,
+      NumSats integer,
+      FOREIGN KEY (collar_no) REFERENCES collars(collar_no)
+      FOREIGN KEY (tag_no) REFERENCES cows(tag_no));')
+
+# insert data into gps table from gps_raw and deployments
+dbExecute(cattle_db,
+  'INSERT INTO gps (
+      collar_no, tag_no, date, Latitude, Longitude, Temperature, NumSats)
+      SELECT
+        deployments.collar_no,
+        deployments.tag_no,
+        gps_raw.date,
+        gps_raw.Latitude,
+        gps_raw.Longitude,
+        gps_raw.Temperature,
+        gps_raw.NumSats
+      FROM deployments LEFT JOIN gps_raw USING (collar_no)
+      WHERE gps_raw.collar_no = deployments.collar_no AND
+      (
+        (
+        (strftime(gps_raw.date) >= strftime(deployments.download_start)) AND
+        (strftime(gps_raw.date) <= strftime(deployments.download_end))
+        )
+      OR
+        (
+        (strftime(gps_raw.date) >= strftime(deployments.download_start)) AND
+        deployments.download_end IS NULL
+        )
+      )
+')
+
+dbGetQuery(cattle_db, 'SELECT * FROM gps LIMIT 10;')
+```
+
