@@ -5,24 +5,25 @@ date: "2023-02-23"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r clean, include=F}
 rm(list = ls())
 ```
 
+
+```{r packages, include = F}
 ### load in packages
-```{r}
 library(DBI)
 library(tidyverse)
 library(data.table)
 ```
 
 ### create cattle.db
-```{r}
+```{r create_db, eval = F}
 cattle_db = dbConnect(RSQLite::SQLite(), '../cattle.db')
 ```
 
 ### import metadata .csv files
-```{r}
+```{r read_csv}
 # cows: old tag, new tag, breed
 cows = read.csv('../raw data/tag-breed-info.csv') %>%
   mutate(tag_no = ifelse(new_tag == '', old_tag, new_tag))
@@ -60,7 +61,7 @@ gps_raw = read.csv('../processed data/2021-2022_GPS-combined.csv') %>%
 ```
 
 ### add tag_no column to diet data
-```{r}
+```{r diet_tag_no}
 for(i in 1:nrow(diet)){
   diet$tag_no[i] = ifelse(diet$new_tag[i] == '',
                           cows[which(cows$old_tag == diet$old_tag[i]),]$tag_no,
@@ -70,7 +71,7 @@ for(i in 1:nrow(diet)){
 
 ### create tables in SQL
 #### cows
-```{r}
+```{r cow_table, eval = F}
 # create table
 dbExecute(cattle_db, 
   'CREATE TABLE cows (
@@ -86,7 +87,7 @@ dbGetQuery(cattle_db, 'SELECT * FROM cows LIMIT 10;')
 ```
 
 #### metrics
-```{r}
+```{r metrics_table, eval = F}
 # create table
 dbExecute(cattle_db, 
   'CREATE TABLE metrics (
@@ -105,7 +106,7 @@ dbGetQuery(cattle_db, 'SELECT * FROM metrics LIMIT 10;')
 ```
 
 #### diet
-```{r}
+```{r diet_table, eval = F}
 # create table
 dbExecute(cattle_db, 
   'CREATE TABLE diet (
@@ -124,7 +125,7 @@ dbGetQuery(cattle_db, 'SELECT * FROM diet LIMIT 10;')
 ```
 
 #### collars
-```{r}
+```{r collar_table, eval = F}
 # create table
 dbExecute(cattle_db, 
   'CREATE TABLE collars (
@@ -140,7 +141,7 @@ dbGetQuery(cattle_db, 'SELECT * FROM collars LIMIT 10;')
 ```
 
 #### deployments
-```{r}
+```{r deployments_table, eval = F}
 # create table
 dbExecute(cattle_db, 
   'CREATE TABLE deployments (
@@ -161,7 +162,7 @@ dbGetQuery(cattle_db, 'SELECT * FROM deployments LIMIT 10;')
 ```
 
 #### gps_raw
-```{r}
+```{r gps_raw, eval = F}
 # create table
 dbExecute(cattle_db, 
   'CREATE TABLE gps_raw (
@@ -183,7 +184,7 @@ dbGetQuery(cattle_db, 'SELECT * FROM gps_raw LIMIT 10;')
 ```
 
 #### link gps_raw to tag_no
-```{r}
+```{r gps_table, eval = F}
 # create table
 dbExecute(cattle_db,
   'CREATE TABLE gps (
