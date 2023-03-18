@@ -1,5 +1,11 @@
 project-description
 datasets-available
 database-structure
-hello-bookdown
-a-section
+combine-collar-data-from-lotek-and-ats-collars
+description
+read-lotek-collar-data
+read-ats-data
+combine-collar-data
+add-cow-ear-tag-and-breed-info
+clean-collar-data
+save-output-to-.csv
