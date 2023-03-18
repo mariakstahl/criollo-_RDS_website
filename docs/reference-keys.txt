@@ -9,3 +9,16 @@ combine-collar-data
 add-cow-ear-tag-and-breed-info
 clean-collar-data
 save-output-to-.csv
+create-cattle.db-database
+description-1
+create-cattle.db-file
+import-metadata-.csv-files
+add-tag_no-column-to-diet-data
+create-tables-in-sql
+cows
+metrics
+diet
+collars
+deployments
+gps_raw
+link-gps_raw-to-tag_no

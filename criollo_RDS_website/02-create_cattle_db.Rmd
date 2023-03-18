@@ -1,43 +1,49 @@
----
-title: "create_cattle_db"
-author: "maria stahl"
-date: "2023-02-23"
-output: html_document
----
+# Create cattle.db database
 
-```{r clean, include=F}
+## Description
+This code reads in all the Lotek and ATS GPS .csv files, organizes them into
+the same format, and combines them into one .csv with the associated cow
+metadata (ear tag and breed). We need to do this before we create the database!
+
+Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
+This will be an issue in the future when we start re-using Lotek collars and
+have multiple cattle IDs associated with each Lotek collar. When this happens,
+I will need to add a section of code that looks not only at the collar ID but
+also at the dates to match collars to cows.
+
+```{r clean2, include=F}
 rm(list = ls())
 ```
 
 
-```{r packages, include = F}
+```{r packages2, include = F}
 ### load in packages
 library(DBI)
 library(tidyverse)
 library(data.table)
 ```
 
-### create cattle.db
+## create cattle.db file
 ```{r create_db, eval = F}
-cattle_db = dbConnect(RSQLite::SQLite(), '../cattle.db')
+cattle_db = dbConnect(RSQLite::SQLite(), '../cattle/cattle.db')
 ```
 
-### import metadata .csv files
+## import metadata .csv files
 ```{r read_csv}
 # cows: old tag, new tag, breed
-cows = read.csv('../raw data/tag-breed-info.csv') %>%
+cows = read.csv('../cattle/raw data/tag-breed-info.csv') %>%
   mutate(tag_no = ifelse(new_tag == '', old_tag, new_tag))
 
 # metrics: date, new tag, weight, bcs
 metrics = 
-  read.csv('../raw data/collar_pedometer-metadata/collars.peds_all.csv') %>%
+  read.csv('../cattle/raw data/collar_pedometer-metadata/collars.peds_all.csv') %>%
   rename(old_tag = tag_no) %>%
   mutate(tag_no = ifelse(new_tag == '', old_tag, new_tag)) %>%
   dplyr::select(date, tag_no, weight, BCS)
   
 
 # diet: collection date, new_tag, tube_id, process date
-diet = read.csv('../raw data/fecal sample ID.csv') %>%
+diet = read.csv('../cattle/raw data/fecal sample ID.csv') %>%
   dplyr::select(Collection_Date, Tag, New_Tag, Tube, Processing_Date) %>%
   rename(old_tag = Tag, new_tag = New_Tag, collection_date = Collection_Date,
          processing_date = Processing_Date, tube = Tube) %>%
@@ -45,22 +51,22 @@ diet = read.csv('../raw data/fecal sample ID.csv') %>%
 
 # deployments: new_tag, collar_no, download_start, download_end
 deployments = 
-  read.csv('../raw data/collar_pedometer-metadata/collar data log.csv') %>%
+  read.csv('../cattle/raw data/collar_pedometer-metadata/collar data log.csv') %>%
   dplyr::select(tag.no, collar.no, download_start, download_end) %>%
   rename(tag_no = tag.no, collar_no = collar.no)
 
 # collars: collar_no, brand, status
-collars = read.csv('../raw data/collar_pedometer-metadata/collars.csv') %>%
+collars = read.csv('../cattle/raw data/collar_pedometer-metadata/collars.csv') %>%
   dplyr::select(Serial.No, status, brand) %>%
   rename(collar_no = Serial.No)
 
 # gps_raw: date, collar_no, temp, lat, long, DOP, satellites
-gps_raw = read.csv('../processed data/2021-2022_GPS-combined.csv') %>%
+gps_raw = read.csv('../cattle/processed data/2021-2022_GPS-combined.csv') %>%
   rename(collar_no = CollarSerialNumber, date = date_time)
 
 ```
 
-### add tag_no column to diet data
+## add tag_no column to diet data
 ```{r diet_tag_no}
 for(i in 1:nrow(diet)){
   diet$tag_no[i] = ifelse(diet$new_tag[i] == '',
@@ -69,8 +75,8 @@ for(i in 1:nrow(diet)){
 }
 ```
 
-### create tables in SQL
-#### cows
+## create tables in SQL
+### cows
 ```{r cow_table, eval = F}
 # create table
 dbExecute(cattle_db, 
@@ -86,7 +92,7 @@ dbWriteTable(cattle_db, 'cows', cows, append = T)
 dbGetQuery(cattle_db, 'SELECT * FROM cows LIMIT 10;')
 ```
 
-#### metrics
+### metrics
 ```{r metrics_table, eval = F}
 # create table
 dbExecute(cattle_db, 
@@ -105,7 +111,7 @@ dbWriteTable(cattle_db, 'metrics', metrics, append = T)
 dbGetQuery(cattle_db, 'SELECT * FROM metrics LIMIT 10;')
 ```
 
-#### diet
+### diet
 ```{r diet_table, eval = F}
 # create table
 dbExecute(cattle_db, 
@@ -124,7 +130,7 @@ dbWriteTable(cattle_db, 'diet', diet, append = T)
 dbGetQuery(cattle_db, 'SELECT * FROM diet LIMIT 10;')
 ```
 
-#### collars
+### collars
 ```{r collar_table, eval = F}
 # create table
 dbExecute(cattle_db, 
@@ -140,7 +146,7 @@ dbWriteTable(cattle_db, 'collars', collars, append = T)
 dbGetQuery(cattle_db, 'SELECT * FROM collars LIMIT 10;')
 ```
 
-#### deployments
+### deployments
 ```{r deployments_table, eval = F}
 # create table
 dbExecute(cattle_db, 
@@ -161,7 +167,7 @@ dbWriteTable(cattle_db, 'deployments', deployments, append = T)
 dbGetQuery(cattle_db, 'SELECT * FROM deployments LIMIT 10;')
 ```
 
-#### gps_raw
+### gps_raw
 ```{r gps_raw, eval = F}
 # create table
 dbExecute(cattle_db, 
@@ -183,7 +189,7 @@ dbWriteTable(cattle_db, 'gps_raw', gps_raw, append = T)
 dbGetQuery(cattle_db, 'SELECT * FROM gps_raw LIMIT 10;')
 ```
 
-#### link gps_raw to tag_no
+### link gps_raw to tag_no
 ```{r gps_table, eval = F}
 # create table
 dbExecute(cattle_db,

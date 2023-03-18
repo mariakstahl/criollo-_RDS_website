@@ -33,3 +33,6 @@ Below are the datasets I have available and am adding to the database:
 Below is a schematic of the structure of my relational database. The next chapter will detail how the database was constructed.
 
 ![Schematic of database structure](../database-design.png)
+
+
+

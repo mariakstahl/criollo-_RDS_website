@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 3 Create cattle.db database | Reproducible Data Science Final Project 2023</title>
+  <meta name="description" content="This book documents the process of completing my final project for RDS 2023." />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 3 Create cattle.db database | Reproducible Data Science Final Project 2023" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="This book documents the process of completing my final project for RDS 2023." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 Create cattle.db database | Reproducible Data Science Final Project 2023" />
+  
+  <meta name="twitter:description" content="This book documents the process of completing my final project for RDS 2023." />
+  
+
+<meta name="author" content="Maria Stahl" />
+
+
+<meta name="date" content="2023-03-18" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="combine-collar-data-from-lotek-and-ats-collars.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Project description</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#datasets-available"><i class="fa fa-check"></i><b>1.1</b> Datasets available</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#database-structure"><i class="fa fa-check"></i><b>1.2</b> Database structure</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html"><i class="fa fa-check"></i><b>2</b> Combine collar data from Lotek and ATS collars</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#description"><i class="fa fa-check"></i><b>2.1</b> Description</a></li>
+<li class="chapter" data-level="2.2" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#read-lotek-collar-data"><i class="fa fa-check"></i><b>2.2</b> Read Lotek collar data</a></li>
+<li class="chapter" data-level="2.3" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#read-ats-data"><i class="fa fa-check"></i><b>2.3</b> Read ATS data</a></li>
+<li class="chapter" data-level="2.4" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#combine-collar-data"><i class="fa fa-check"></i><b>2.4</b> Combine collar data</a></li>
+<li class="chapter" data-level="2.5" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#add-cow-ear-tag-and-breed-info"><i class="fa fa-check"></i><b>2.5</b> add cow ear tag and breed info</a></li>
+<li class="chapter" data-level="2.6" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#clean-collar-data"><i class="fa fa-check"></i><b>2.6</b> clean collar data</a></li>
+<li class="chapter" data-level="2.7" data-path="combine-collar-data-from-lotek-and-ats-collars.html"><a href="combine-collar-data-from-lotek-and-ats-collars.html#save-output-to-.csv"><i class="fa fa-check"></i><b>2.7</b> save output to .csv</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html"><i class="fa fa-check"></i><b>3</b> Create cattle.db database</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#description-1"><i class="fa fa-check"></i><b>3.1</b> Description</a></li>
+<li class="chapter" data-level="3.2" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#create-cattle.db-file"><i class="fa fa-check"></i><b>3.2</b> create cattle.db file</a></li>
+<li class="chapter" data-level="3.3" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#import-metadata-.csv-files"><i class="fa fa-check"></i><b>3.3</b> import metadata .csv files</a></li>
+<li class="chapter" data-level="3.4" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#add-tag_no-column-to-diet-data"><i class="fa fa-check"></i><b>3.4</b> add tag_no column to diet data</a></li>
+<li class="chapter" data-level="3.5" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#create-tables-in-sql"><i class="fa fa-check"></i><b>3.5</b> create tables in SQL</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#cows"><i class="fa fa-check"></i><b>3.5.1</b> cows</a></li>
+<li class="chapter" data-level="3.5.2" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#metrics"><i class="fa fa-check"></i><b>3.5.2</b> metrics</a></li>
+<li class="chapter" data-level="3.5.3" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#diet"><i class="fa fa-check"></i><b>3.5.3</b> diet</a></li>
+<li class="chapter" data-level="3.5.4" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#collars"><i class="fa fa-check"></i><b>3.5.4</b> collars</a></li>
+<li class="chapter" data-level="3.5.5" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#deployments"><i class="fa fa-check"></i><b>3.5.5</b> deployments</a></li>
+<li class="chapter" data-level="3.5.6" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#gps_raw"><i class="fa fa-check"></i><b>3.5.6</b> gps_raw</a></li>
+<li class="chapter" data-level="3.5.7" data-path="create-cattle.db-database.html"><a href="create-cattle.db-database.html#link-gps_raw-to-tag_no"><i class="fa fa-check"></i><b>3.5.7</b> link gps_raw to tag_no</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Reproducible Data Science Final Project 2023</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="create-cattle.db-database" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">Chapter 3</span> Create cattle.db database<a href="create-cattle.db-database.html#create-cattle.db-database" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="description-1" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Description<a href="create-cattle.db-database.html#description-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This code reads in all the Lotek and ATS GPS .csv files, organizes them into
+the same format, and combines them into one .csv with the associated cow
+metadata (ear tag and breed). We need to do this before we create the database!</p>
+<p>Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
+This will be an issue in the future when we start re-using Lotek collars and
+have multiple cattle IDs associated with each Lotek collar. When this happens,
+I will need to add a section of code that looks not only at the collar ID but
+also at the dates to match collars to cows.</p>
+</div>
+<div id="create-cattle.db-file" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> create cattle.db file<a href="create-cattle.db-database.html#create-cattle.db-file" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="create-cattle.db-database.html#cb12-1" aria-hidden="true" tabindex="-1"></a>cattle_db <span class="ot">=</span> <span class="fu">dbConnect</span>(RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(), <span class="st">&#39;../cattle/cattle.db&#39;</span>)</span></code></pre></div>
+</div>
+<div id="import-metadata-.csv-files" class="section level2 hasAnchor" number="3.3">
+<h2><span class="header-section-number">3.3</span> import metadata .csv files<a href="create-cattle.db-database.html#import-metadata-.csv-files" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="create-cattle.db-database.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cows: old tag, new tag, breed</span></span>
+<span id="cb13-2"><a href="create-cattle.db-database.html#cb13-2" aria-hidden="true" tabindex="-1"></a>cows <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">&#39;../cattle/raw data/tag-breed-info.csv&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="create-cattle.db-database.html#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tag_no =</span> <span class="fu">ifelse</span>(new_tag <span class="sc">==</span> <span class="st">&#39;&#39;</span>, old_tag, new_tag))</span>
+<span id="cb13-4"><a href="create-cattle.db-database.html#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="create-cattle.db-database.html#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># metrics: date, new tag, weight, bcs</span></span>
+<span id="cb13-6"><a href="create-cattle.db-database.html#cb13-6" aria-hidden="true" tabindex="-1"></a>metrics <span class="ot">=</span> </span>
+<span id="cb13-7"><a href="create-cattle.db-database.html#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(<span class="st">&#39;../cattle/raw data/collar_pedometer-metadata/collars.peds_all.csv&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="create-cattle.db-database.html#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">old_tag =</span> tag_no) <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="create-cattle.db-database.html#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tag_no =</span> <span class="fu">ifelse</span>(new_tag <span class="sc">==</span> <span class="st">&#39;&#39;</span>, old_tag, new_tag)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="create-cattle.db-database.html#cb13-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(date, tag_no, weight, BCS)</span>
+<span id="cb13-11"><a href="create-cattle.db-database.html#cb13-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-12"><a href="create-cattle.db-database.html#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="create-cattle.db-database.html#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># diet: collection date, new_tag, tube_id, process date</span></span>
+<span id="cb13-14"><a href="create-cattle.db-database.html#cb13-14" aria-hidden="true" tabindex="-1"></a>diet <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">&#39;../cattle/raw data/fecal sample ID.csv&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-15"><a href="create-cattle.db-database.html#cb13-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Collection_Date, Tag, New_Tag, Tube, Processing_Date) <span class="sc">%&gt;%</span></span>
+<span id="cb13-16"><a href="create-cattle.db-database.html#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">old_tag =</span> Tag, <span class="at">new_tag =</span> New_Tag, <span class="at">collection_date =</span> Collection_Date,</span>
+<span id="cb13-17"><a href="create-cattle.db-database.html#cb13-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">processing_date =</span> Processing_Date, <span class="at">tube =</span> Tube) <span class="sc">%&gt;%</span></span>
+<span id="cb13-18"><a href="create-cattle.db-database.html#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tube <span class="sc">!=</span> <span class="st">&#39;&#39;</span>)</span>
+<span id="cb13-19"><a href="create-cattle.db-database.html#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="create-cattle.db-database.html#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co"># deployments: new_tag, collar_no, download_start, download_end</span></span>
+<span id="cb13-21"><a href="create-cattle.db-database.html#cb13-21" aria-hidden="true" tabindex="-1"></a>deployments <span class="ot">=</span> </span>
+<span id="cb13-22"><a href="create-cattle.db-database.html#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(<span class="st">&#39;../cattle/raw data/collar_pedometer-metadata/collar data log.csv&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-23"><a href="create-cattle.db-database.html#cb13-23" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(tag.no, collar.no, download_start, download_end) <span class="sc">%&gt;%</span></span>
+<span id="cb13-24"><a href="create-cattle.db-database.html#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">tag_no =</span> tag.no, <span class="at">collar_no =</span> collar.no)</span>
+<span id="cb13-25"><a href="create-cattle.db-database.html#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="create-cattle.db-database.html#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co"># collars: collar_no, brand, status</span></span>
+<span id="cb13-27"><a href="create-cattle.db-database.html#cb13-27" aria-hidden="true" tabindex="-1"></a>collars <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">&#39;../cattle/raw data/collar_pedometer-metadata/collars.csv&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-28"><a href="create-cattle.db-database.html#cb13-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Serial.No, status, brand) <span class="sc">%&gt;%</span></span>
+<span id="cb13-29"><a href="create-cattle.db-database.html#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">collar_no =</span> Serial.No)</span>
+<span id="cb13-30"><a href="create-cattle.db-database.html#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-31"><a href="create-cattle.db-database.html#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="co"># gps_raw: date, collar_no, temp, lat, long, DOP, satellites</span></span>
+<span id="cb13-32"><a href="create-cattle.db-database.html#cb13-32" aria-hidden="true" tabindex="-1"></a>gps_raw <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">&#39;../cattle/processed data/2021-2022_GPS-combined.csv&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-33"><a href="create-cattle.db-database.html#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">collar_no =</span> CollarSerialNumber, <span class="at">date =</span> date_time)</span></code></pre></div>
+</div>
+<div id="add-tag_no-column-to-diet-data" class="section level2 hasAnchor" number="3.4">
+<h2><span class="header-section-number">3.4</span> add tag_no column to diet data<a href="create-cattle.db-database.html#add-tag_no-column-to-diet-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="create-cattle.db-database.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(diet)){</span>
+<span id="cb14-2"><a href="create-cattle.db-database.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  diet<span class="sc">$</span>tag_no[i] <span class="ot">=</span> <span class="fu">ifelse</span>(diet<span class="sc">$</span>new_tag[i] <span class="sc">==</span> <span class="st">&#39;&#39;</span>,</span>
+<span id="cb14-3"><a href="create-cattle.db-database.html#cb14-3" aria-hidden="true" tabindex="-1"></a>                          cows[<span class="fu">which</span>(cows<span class="sc">$</span>old_tag <span class="sc">==</span> diet<span class="sc">$</span>old_tag[i]),]<span class="sc">$</span>tag_no,</span>
+<span id="cb14-4"><a href="create-cattle.db-database.html#cb14-4" aria-hidden="true" tabindex="-1"></a>                          diet<span class="sc">$</span>new_tag[i])</span>
+<span id="cb14-5"><a href="create-cattle.db-database.html#cb14-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="create-tables-in-sql" class="section level2 hasAnchor" number="3.5">
+<h2><span class="header-section-number">3.5</span> create tables in SQL<a href="create-cattle.db-database.html#create-tables-in-sql" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="cows" class="section level3 hasAnchor" number="3.5.1">
+<h3><span class="header-section-number">3.5.1</span> cows<a href="create-cattle.db-database.html#cows" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="create-cattle.db-database.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb15-2"><a href="create-cattle.db-database.html#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db, </span>
+<span id="cb15-3"><a href="create-cattle.db-database.html#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE cows (</span></span>
+<span id="cb15-4"><a href="create-cattle.db-database.html#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">      tag_no varchar(4) NOT NULL,</span></span>
+<span id="cb15-5"><a href="create-cattle.db-database.html#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">      old_tag varchar(4),</span></span>
+<span id="cb15-6"><a href="create-cattle.db-database.html#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="st">      new_tag varchar(4),</span></span>
+<span id="cb15-7"><a href="create-cattle.db-database.html#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">      breed varchar(6),</span></span>
+<span id="cb15-8"><a href="create-cattle.db-database.html#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">      PRIMARY KEY (tag_no));&#39;</span>)</span>
+<span id="cb15-9"><a href="create-cattle.db-database.html#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="create-cattle.db-database.html#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># populate table</span></span>
+<span id="cb15-11"><a href="create-cattle.db-database.html#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(cattle_db, <span class="st">&#39;cows&#39;</span>, cows, <span class="at">append =</span> T)</span>
+<span id="cb15-12"><a href="create-cattle.db-database.html#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM cows LIMIT 10;&#39;</span>)</span></code></pre></div>
+</div>
+<div id="metrics" class="section level3 hasAnchor" number="3.5.2">
+<h3><span class="header-section-number">3.5.2</span> metrics<a href="create-cattle.db-database.html#metrics" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="create-cattle.db-database.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb16-2"><a href="create-cattle.db-database.html#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db, </span>
+<span id="cb16-3"><a href="create-cattle.db-database.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE metrics (</span></span>
+<span id="cb16-4"><a href="create-cattle.db-database.html#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="st">      metric_id INTEGER PRIMARY KEY AUTOINCREMENT,</span></span>
+<span id="cb16-5"><a href="create-cattle.db-database.html#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="st">      tag_no varchar(4),</span></span>
+<span id="cb16-6"><a href="create-cattle.db-database.html#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="st">      weight double,</span></span>
+<span id="cb16-7"><a href="create-cattle.db-database.html#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="st">      BCS double,</span></span>
+<span id="cb16-8"><a href="create-cattle.db-database.html#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="st">      date text,</span></span>
+<span id="cb16-9"><a href="create-cattle.db-database.html#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY(tag_no) REFERENCES cows(tag_no));&#39;</span>)</span>
+<span id="cb16-10"><a href="create-cattle.db-database.html#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="create-cattle.db-database.html#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># populate table</span></span>
+<span id="cb16-12"><a href="create-cattle.db-database.html#cb16-12" aria-hidden="true" tabindex="-1"></a>metrics<span class="sc">$</span>metric_id <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(metrics)</span>
+<span id="cb16-13"><a href="create-cattle.db-database.html#cb16-13" aria-hidden="true" tabindex="-1"></a>metrics <span class="ot">=</span> metrics[, <span class="fu">c</span>(<span class="st">&#39;metric_id&#39;</span>, <span class="st">&#39;tag_no&#39;</span>, <span class="st">&#39;weight&#39;</span>, <span class="st">&#39;BCS&#39;</span>, <span class="st">&#39;date&#39;</span>)]</span>
+<span id="cb16-14"><a href="create-cattle.db-database.html#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(cattle_db, <span class="st">&#39;metrics&#39;</span>, metrics, <span class="at">append =</span> T)</span>
+<span id="cb16-15"><a href="create-cattle.db-database.html#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM metrics LIMIT 10;&#39;</span>)</span></code></pre></div>
+</div>
+<div id="diet" class="section level3 hasAnchor" number="3.5.3">
+<h3><span class="header-section-number">3.5.3</span> diet<a href="create-cattle.db-database.html#diet" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="create-cattle.db-database.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb17-2"><a href="create-cattle.db-database.html#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db, </span>
+<span id="cb17-3"><a href="create-cattle.db-database.html#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE diet (</span></span>
+<span id="cb17-4"><a href="create-cattle.db-database.html#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="st">      collection_date text,</span></span>
+<span id="cb17-5"><a href="create-cattle.db-database.html#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="st">      old_tag varchar(4),</span></span>
+<span id="cb17-6"><a href="create-cattle.db-database.html#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="st">      new_tag varchar(4),</span></span>
+<span id="cb17-7"><a href="create-cattle.db-database.html#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="st">      tube text,</span></span>
+<span id="cb17-8"><a href="create-cattle.db-database.html#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="st">      processing_date text,</span></span>
+<span id="cb17-9"><a href="create-cattle.db-database.html#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="st">      tag_no varchar(4),</span></span>
+<span id="cb17-10"><a href="create-cattle.db-database.html#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="st">      PRIMARY KEY (tube),</span></span>
+<span id="cb17-11"><a href="create-cattle.db-database.html#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY (tag_no) REFERENCES cows(tag_no));&#39;</span>)</span>
+<span id="cb17-12"><a href="create-cattle.db-database.html#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="create-cattle.db-database.html#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co"># populate table</span></span>
+<span id="cb17-14"><a href="create-cattle.db-database.html#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(cattle_db, <span class="st">&#39;diet&#39;</span>, diet, <span class="at">append =</span> T)</span>
+<span id="cb17-15"><a href="create-cattle.db-database.html#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM diet LIMIT 10;&#39;</span>)</span></code></pre></div>
+</div>
+<div id="collars" class="section level3 hasAnchor" number="3.5.4">
+<h3><span class="header-section-number">3.5.4</span> collars<a href="create-cattle.db-database.html#collars" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="create-cattle.db-database.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb18-2"><a href="create-cattle.db-database.html#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db, </span>
+<span id="cb18-3"><a href="create-cattle.db-database.html#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE collars (</span></span>
+<span id="cb18-4"><a href="create-cattle.db-database.html#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="st">      collar_no double,</span></span>
+<span id="cb18-5"><a href="create-cattle.db-database.html#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="st">      status text,</span></span>
+<span id="cb18-6"><a href="create-cattle.db-database.html#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="st">      brand text,</span></span>
+<span id="cb18-7"><a href="create-cattle.db-database.html#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="st">      PRIMARY KEY (collar_no));&#39;</span>)</span>
+<span id="cb18-8"><a href="create-cattle.db-database.html#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="create-cattle.db-database.html#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="create-cattle.db-database.html#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># populate table</span></span>
+<span id="cb18-11"><a href="create-cattle.db-database.html#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(cattle_db, <span class="st">&#39;collars&#39;</span>, collars, <span class="at">append =</span> T)</span>
+<span id="cb18-12"><a href="create-cattle.db-database.html#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM collars LIMIT 10;&#39;</span>)</span></code></pre></div>
+</div>
+<div id="deployments" class="section level3 hasAnchor" number="3.5.5">
+<h3><span class="header-section-number">3.5.5</span> deployments<a href="create-cattle.db-database.html#deployments" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="create-cattle.db-database.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb19-2"><a href="create-cattle.db-database.html#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db, </span>
+<span id="cb19-3"><a href="create-cattle.db-database.html#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE deployments (</span></span>
+<span id="cb19-4"><a href="create-cattle.db-database.html#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="st">      deployment_id INTEGER PRIMARY KEY AUTOINCREMENT,</span></span>
+<span id="cb19-5"><a href="create-cattle.db-database.html#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="st">      tag_no varchar(4),</span></span>
+<span id="cb19-6"><a href="create-cattle.db-database.html#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="st">      collar_no double,</span></span>
+<span id="cb19-7"><a href="create-cattle.db-database.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="st">      download_start text,</span></span>
+<span id="cb19-8"><a href="create-cattle.db-database.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="st">      download_end text,</span></span>
+<span id="cb19-9"><a href="create-cattle.db-database.html#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY(tag_no) REFERENCES cows(tag_no)</span></span>
+<span id="cb19-10"><a href="create-cattle.db-database.html#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY(collar_no) REFERENCES collars(collar_no));&#39;</span>)</span>
+<span id="cb19-11"><a href="create-cattle.db-database.html#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-12"><a href="create-cattle.db-database.html#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co"># populate table</span></span>
+<span id="cb19-13"><a href="create-cattle.db-database.html#cb19-13" aria-hidden="true" tabindex="-1"></a>deployments<span class="sc">$</span>deployment_id <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(deployments)</span>
+<span id="cb19-14"><a href="create-cattle.db-database.html#cb19-14" aria-hidden="true" tabindex="-1"></a>deployments <span class="ot">=</span> deployments[, <span class="fu">c</span>(<span class="st">&#39;deployment_id&#39;</span>, <span class="st">&#39;tag_no&#39;</span>, <span class="st">&#39;collar_no&#39;</span>, </span>
+<span id="cb19-15"><a href="create-cattle.db-database.html#cb19-15" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&#39;download_start&#39;</span>, <span class="st">&#39;download_end&#39;</span>)]</span>
+<span id="cb19-16"><a href="create-cattle.db-database.html#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(cattle_db, <span class="st">&#39;deployments&#39;</span>, deployments, <span class="at">append =</span> T)</span>
+<span id="cb19-17"><a href="create-cattle.db-database.html#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM deployments LIMIT 10;&#39;</span>)</span></code></pre></div>
+</div>
+<div id="gps_raw" class="section level3 hasAnchor" number="3.5.6">
+<h3><span class="header-section-number">3.5.6</span> gps_raw<a href="create-cattle.db-database.html#gps_raw" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="create-cattle.db-database.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb20-2"><a href="create-cattle.db-database.html#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db, </span>
+<span id="cb20-3"><a href="create-cattle.db-database.html#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE gps_raw (</span></span>
+<span id="cb20-4"><a href="create-cattle.db-database.html#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="st">      fix_id INTEGER PRIMARY KEY AUTOINCREMENT,</span></span>
+<span id="cb20-5"><a href="create-cattle.db-database.html#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="st">      collar_no integer,</span></span>
+<span id="cb20-6"><a href="create-cattle.db-database.html#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="st">      date text,</span></span>
+<span id="cb20-7"><a href="create-cattle.db-database.html#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="st">      Latitude double,</span></span>
+<span id="cb20-8"><a href="create-cattle.db-database.html#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="st">      Longitude double,</span></span>
+<span id="cb20-9"><a href="create-cattle.db-database.html#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="st">      Temperature double,</span></span>
+<span id="cb20-10"><a href="create-cattle.db-database.html#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="st">      NumSats integer,</span></span>
+<span id="cb20-11"><a href="create-cattle.db-database.html#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY(collar_no) REFERENCES collars(collar_no));&#39;</span>)</span>
+<span id="cb20-12"><a href="create-cattle.db-database.html#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="create-cattle.db-database.html#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># populate table</span></span>
+<span id="cb20-14"><a href="create-cattle.db-database.html#cb20-14" aria-hidden="true" tabindex="-1"></a>gps_raw<span class="sc">$</span>fix_id <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(gps_raw)</span>
+<span id="cb20-15"><a href="create-cattle.db-database.html#cb20-15" aria-hidden="true" tabindex="-1"></a>gps_raw <span class="ot">=</span> gps_raw[, <span class="fu">c</span>(<span class="st">&#39;fix_id&#39;</span>, <span class="st">&#39;collar_no&#39;</span>, <span class="st">&#39;date&#39;</span>, <span class="st">&#39;Latitude&#39;</span>, <span class="st">&#39;Longitude&#39;</span>,</span>
+<span id="cb20-16"><a href="create-cattle.db-database.html#cb20-16" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&#39;Temperature&#39;</span>, <span class="st">&#39;NumSats&#39;</span>)]</span>
+<span id="cb20-17"><a href="create-cattle.db-database.html#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(cattle_db, <span class="st">&#39;gps_raw&#39;</span>, gps_raw, <span class="at">append =</span> T)</span>
+<span id="cb20-18"><a href="create-cattle.db-database.html#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM gps_raw LIMIT 10;&#39;</span>)</span></code></pre></div>
+</div>
+<div id="link-gps_raw-to-tag_no" class="section level3 hasAnchor" number="3.5.7">
+<h3><span class="header-section-number">3.5.7</span> link gps_raw to tag_no<a href="create-cattle.db-database.html#link-gps_raw-to-tag_no" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="create-cattle.db-database.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create table</span></span>
+<span id="cb21-2"><a href="create-cattle.db-database.html#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db,</span>
+<span id="cb21-3"><a href="create-cattle.db-database.html#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CREATE TABLE gps (</span></span>
+<span id="cb21-4"><a href="create-cattle.db-database.html#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="st">      loc_id INTEGER PRIMARY KEY,</span></span>
+<span id="cb21-5"><a href="create-cattle.db-database.html#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="st">      collar_no integer,</span></span>
+<span id="cb21-6"><a href="create-cattle.db-database.html#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="st">      tag_no varchar(4),</span></span>
+<span id="cb21-7"><a href="create-cattle.db-database.html#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="st">      date text,</span></span>
+<span id="cb21-8"><a href="create-cattle.db-database.html#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="st">      Latitude double,</span></span>
+<span id="cb21-9"><a href="create-cattle.db-database.html#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="st">      Longitude double,</span></span>
+<span id="cb21-10"><a href="create-cattle.db-database.html#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="st">      Temperature double,</span></span>
+<span id="cb21-11"><a href="create-cattle.db-database.html#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="st">      NumSats integer,</span></span>
+<span id="cb21-12"><a href="create-cattle.db-database.html#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY (collar_no) REFERENCES collars(collar_no)</span></span>
+<span id="cb21-13"><a href="create-cattle.db-database.html#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="st">      FOREIGN KEY (tag_no) REFERENCES cows(tag_no));&#39;</span>)</span>
+<span id="cb21-14"><a href="create-cattle.db-database.html#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="create-cattle.db-database.html#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co"># insert data into gps table from gps_raw and deployments</span></span>
+<span id="cb21-16"><a href="create-cattle.db-database.html#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(cattle_db,</span>
+<span id="cb21-17"><a href="create-cattle.db-database.html#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;INSERT INTO gps (</span></span>
+<span id="cb21-18"><a href="create-cattle.db-database.html#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="st">      collar_no, tag_no, date, Latitude, Longitude, Temperature, NumSats)</span></span>
+<span id="cb21-19"><a href="create-cattle.db-database.html#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="st">      SELECT</span></span>
+<span id="cb21-20"><a href="create-cattle.db-database.html#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="st">        deployments.collar_no,</span></span>
+<span id="cb21-21"><a href="create-cattle.db-database.html#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="st">        deployments.tag_no,</span></span>
+<span id="cb21-22"><a href="create-cattle.db-database.html#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="st">        gps_raw.date,</span></span>
+<span id="cb21-23"><a href="create-cattle.db-database.html#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="st">        gps_raw.Latitude,</span></span>
+<span id="cb21-24"><a href="create-cattle.db-database.html#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="st">        gps_raw.Longitude,</span></span>
+<span id="cb21-25"><a href="create-cattle.db-database.html#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="st">        gps_raw.Temperature,</span></span>
+<span id="cb21-26"><a href="create-cattle.db-database.html#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="st">        gps_raw.NumSats</span></span>
+<span id="cb21-27"><a href="create-cattle.db-database.html#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="st">      FROM deployments LEFT JOIN gps_raw USING (collar_no)</span></span>
+<span id="cb21-28"><a href="create-cattle.db-database.html#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="st">      WHERE gps_raw.collar_no = deployments.collar_no AND</span></span>
+<span id="cb21-29"><a href="create-cattle.db-database.html#cb21-29" aria-hidden="true" tabindex="-1"></a><span class="st">      (</span></span>
+<span id="cb21-30"><a href="create-cattle.db-database.html#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="st">        (</span></span>
+<span id="cb21-31"><a href="create-cattle.db-database.html#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="st">        (strftime(gps_raw.date) &gt;= strftime(deployments.download_start)) AND</span></span>
+<span id="cb21-32"><a href="create-cattle.db-database.html#cb21-32" aria-hidden="true" tabindex="-1"></a><span class="st">        (strftime(gps_raw.date) &lt;= strftime(deployments.download_end))</span></span>
+<span id="cb21-33"><a href="create-cattle.db-database.html#cb21-33" aria-hidden="true" tabindex="-1"></a><span class="st">        )</span></span>
+<span id="cb21-34"><a href="create-cattle.db-database.html#cb21-34" aria-hidden="true" tabindex="-1"></a><span class="st">      OR</span></span>
+<span id="cb21-35"><a href="create-cattle.db-database.html#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="st">        (</span></span>
+<span id="cb21-36"><a href="create-cattle.db-database.html#cb21-36" aria-hidden="true" tabindex="-1"></a><span class="st">        (strftime(gps_raw.date) &gt;= strftime(deployments.download_start)) AND</span></span>
+<span id="cb21-37"><a href="create-cattle.db-database.html#cb21-37" aria-hidden="true" tabindex="-1"></a><span class="st">        deployments.download_end IS NULL</span></span>
+<span id="cb21-38"><a href="create-cattle.db-database.html#cb21-38" aria-hidden="true" tabindex="-1"></a><span class="st">        )</span></span>
+<span id="cb21-39"><a href="create-cattle.db-database.html#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="st">      )</span></span>
+<span id="cb21-40"><a href="create-cattle.db-database.html#cb21-40" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;</span>)</span>
+<span id="cb21-41"><a href="create-cattle.db-database.html#cb21-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-42"><a href="create-cattle.db-database.html#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(cattle_db, <span class="st">&#39;SELECT * FROM gps LIMIT 10;&#39;</span>)</span></code></pre></div>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="combine-collar-data-from-lotek-and-ats-collars.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/USERNAME/REPO/edit/BRANCH/02-create_cattle_db.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

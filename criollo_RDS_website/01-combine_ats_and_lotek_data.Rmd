@@ -1,15 +1,7 @@
 # Combine collar data from Lotek and ATS collars
 
-### Description
-This code reads in all the Lotek and ATS GPS .csv files, organizes them into
-the same format, and combines them into one .csv with the associated cow
-metadata (ear tag and breed). We need to do this before we create the database!
-
-Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
-This will be an issue in the future when we start re-using Lotek collars and
-have multiple cattle IDs associated with each Lotek collar. When this happens,
-I will need to add a section of code that looks not only at the collar ID but
-also at the dates to match collars to cows.
+## Description
+This code creates a database file called cattle.db and populates it with all my various .csv files. As it is now, this chapter has no narration between code chunks but I intend to go back and fill in some of the details later.
 
 ```{r clean, include = F}
 rm(list = ls())
