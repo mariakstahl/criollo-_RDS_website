@@ -1,6 +1,5 @@
-about
-usage
-render-book
-preview-book
+project-description
+datasets-available
+database-structure
 hello-bookdown
 a-section
