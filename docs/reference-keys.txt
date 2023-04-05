@@ -22,3 +22,15 @@ collars
 deployments
 gps_raw
 link-gps_raw-to-tag_no
+create-heat-maps
+description-2
+load-in-pasture-shapefiles
+read-in-collar-data-reproject-to-utm-and-convert-to-sf-object
+calculate-activity-modes
+create-map-of-pastures
+interactive-maps-of-each-pasture
+park-pasture
+creek-pasture
+drill-pasture
+davis-and-lavender-canyons
+corral-pocket

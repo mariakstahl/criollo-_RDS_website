@@ -1,0 +1,460 @@
+---
+title: "full year heat map 2022"
+author: "Maria Stahl"
+date: "1/19/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list = ls())
+```
+
+### load packages
+```{r}
+library(amt)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(lubridate)
+library(mapview)
+library(rgdal)
+library(rlist)
+library(sf)
+```
+
+
+## Load in pasture shapefiles
+```{r}
+cottonwood = read_sf("./../../spatial data/Cottonwood_Allotment_and_pasture_boundaries/Cottonwood_Allotment_and_pasture_boundaries.shp")
+
+indianCreek = read_sf("./../../spatial data/Cottonwood_Allotment_and_pasture_boundaries/BLM_IndianCreekAllotment.shp")
+
+winterUSU = read_sf("./../../spatial data/USU_study_winter_pastures_dissolve/USU_study_winter_pastures_dissolve.shp")
+```
+
+### Read in collar data, reproject to UTM, and convert to sf object
+```{r}
+# read in data
+cattle.dat = read.csv('../processed data/2021-2022_GPS-combined.csv')
+
+# convert to sf object
+cattle.gps = st_as_sf(cattle.dat, coords = c('Longitude', 'Latitude'))
+st_crs(cattle.gps) = CRS("+proj=longlat +ellps=WGS84")
+
+# reproject to UTM
+cattle.gps$geometry = st_transform(cattle.gps$geometry, 
+                         crs = st_crs(cottonwood))
+
+st_crs(cattle.gps) == st_crs(indianCreek)
+
+# convert dates to posixct
+cattle.gps$date_time = as.POSIXct(cattle.gps$date_time)
+
+# convert breed to factor
+cattle.gps$breed = as.factor(cattle.gps$breed)
+```
+
+## Calculate activity modes
+```{r}
+# create and clean cattle.frame
+cattle.frame = (cattle.gps) %>%
+  filter(!is.na(breed) &
+           !is.na(date_time)) %>%
+  mutate(tag.no = as.factor(tag.no)) %>%
+  distinct()
+
+# add x and y coordinates
+cattle.frame =  bind_cols(cattle.frame,
+                          as.data.frame(st_coordinates(cattle.frame)))
+
+cattle.list = split(cattle.frame, f = cattle.frame$tag.no)
+  
+# make track
+cattle.track = lapply(cattle.list, 
+                      FUN = mk_track, .x = X, .y = Y, .t = date_time, 
+                      crs = st_crs(cattle.gps), 
+                      order_by_ts = T,
+                      check_duplicates = F)
+rm(cattle.list)
+
+# calculate velocity from track
+tags = levels(cattle.frame$tag.no)
+cattle.speed = lapply(cattle.track, FUN = speed)
+for(i in seq(1:length(tags))){
+  c = tags[i]
+  cattle.track[[c]][4] = cattle.speed[[c]]
+  names(cattle.track[[c]])[4] = 'speed'
+}
+
+# convert list back into data.frame
+speed.frame = list.rbind(cattle.track)
+temp = array()
+for(i in seq(1:length(tags))){
+  temp = append(temp, rep(tags[i], times = dim(cattle.track[[i]])[1]))
+}
+temp = temp[!is.na(temp)]
+
+speed.frame = speed.frame %>%
+  mutate(tag.no = temp) %>%
+  rename(X = x_, Y = y_, date_time = t_)
+
+rm(cattle.track)
+
+# merge cattle.frame and speed.frame
+cattle.frame = merge(cattle.frame, speed.frame[,3:5], 
+                       by = c('tag.no','date_time'))
+
+# classify activity based on speed (from Nyamuryekung'e et al. 2021a)
+resting = 2.34/60 # max resting speed in m/s
+grazing = 25/60 # max grazing speed in m/s
+
+cattle.frame = cattle.frame %>%
+  mutate(activity = case_when(speed <= resting ~  'resting',
+                            speed > resting & speed <= grazing ~
+                              'grazing',
+                            speed > grazing ~  'traveling',
+                            T ~ 'none'))
+
+cattle.grazing = cattle.frame %>%
+  filter(activity == 'grazing')
+
+cattle.resting = cattle.frame %>%
+  filter(activity == 'resting')
+```
+
+### plot all points on top of pastures
+```{r}
+# ggplot() +
+#   geom_sf(data = cottonwood) +
+#   geom_sf(data = indianCreek) +
+#   geom_sf(data = cattle.gps, alpha = 0.5)
+
+```
+
+### merge sf objects
+```{r}
+cwood = cottonwood %>%
+  dplyr::select(PASTURE_NA, geometry) %>%
+  rename(Pasture = PASTURE_NA)
+
+icreek = indianCreek %>%
+  dplyr::select(Pasture, geometry)
+
+USU = winterUSU %>%
+  dplyr::select(USU_pastur, geometry) %>%
+  rename(Pasture = USU_pastur)
+
+pastures = rbind(cwood, USU)
+```
+
+### remove points outside of pasture boundaries
+```{r}
+# points.in = st_intersection(pastures, cattle.gps, sparse = F)
+```
+
+### make smaller cattle points data.frame for faster plotting
+```{r}
+# # select every 100th point from points.in
+# points.in.small = points.in[seq(1, nrow(points.in), 100),]
+```
+
+### plot small points df on top of pastures
+```{r}
+
+# # add column for 'month' in points.in.small
+# points.in.small = points.in.small %>% 
+#   mutate(month = month(date_time))
+# 
+# ggplot() +
+#   geom_sf(data = pastures, fill = 'white', linewidth = 1.25) +
+#   # geom_sf(data = subset(points.in.small),
+#   #         aes(color = as.factor(month)), alpha = 0.5) +
+#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#         panel.background = element_blank(), 
+#         axis.line = element_line(colour = "black"))
+
+```
+
+### create color-coded map of pastures
+```{r}
+### add column for season in pastures sf
+pastures = pastures %>%
+  mutate(season = case_when(Pasture == 'Park Pasture' ~  'Jan-Feb',
+                            Pasture == 'Creek Pasture' ~  'Mar',
+                            Pasture == 'Drill Pasture' ~  'Apr',
+                            Pasture == 'Davis' ~  'May',
+                            Pasture == 'Lavender' ~  'May',
+                            Pasture == 'Corral Pocket' ~ 'Nov-Dec',
+                            T ~ 'Jun-Oct')) %>%
+  mutate(season = ordered(season,
+                             levels = c('Jan-Feb', 'Mar', 'Apr', 'May', 
+                                        'Jun-Oct', 'Nov-Dec')))
+
+### add shorthand pasture names
+pastures = pastures %>%
+  mutate(short.name = case_when(Pasture == 'Park Pasture' ~  'Park',
+                            Pasture == 'Creek Pasture' ~  'Creek',
+                            Pasture == 'Drill Pasture' ~  'Drill',
+                            Pasture == 'Davis' ~  'Davis',
+                            Pasture == 'Lavender' ~  'Lavender',
+                            Pasture == 'Corral Pocket' ~ 'Corral Pocket',
+                            T ~ 'NA')) %>%
+  mutate(short.name = ordered(short.name,
+                             levels = c('Park', 'Creek', 'Drill', 'Davis', 
+                                        'Lavender', 'NA', 
+                                        'Corral Pocket')))
+### create data.frame with centroids
+pastures = pastures %>%
+  cbind(., st_coordinates(st_centroid(pastures)))
+
+### create color palette for fill colors
+colors = c('#99ddff', '#44bb99', '#bbcc33', '#aaaa00', '#eedd88', '#ee8866')
+
+### make map
+ggplot() + 
+  geom_sf(data = pastures, aes(fill = season)) +
+  geom_label(data = subset(pastures, short.name != 'NA'), 
+                           aes(x = X, y = Y, label = short.name), size = 3.5) +
+  scale_fill_manual(values = colors)
+
+# ggsave('../figures/yearly rotation.png', plot = last_plot(), scale = 1)
+```
+
+### look at each pasture separately for spatial partitioning
+## PARK
+```{r}
+# isolate pasture
+park = subset(pastures, Pasture == 'Park Pasture')
+
+# isolate points over pasture, transform to latlong (first rest, then graz)
+park.points1 = st_intersection(park, cattle.resting, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+park.points2 = st_intersection(park, cattle.grazing, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# transform park pasture
+park = park %>% st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+factpal = colorFactor(c('#6c071c', '#00447c'), park.points1$breed)
+
+# resting
+park.map.resting = leaflet() %>% 
+  addPolygons(data = park, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = park.points1, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = park.points1, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(park.map.resting, 
+#         url = '../figures/2021-2022 leaflet maps/parkMapResting.html',
+#         file = '../figures/2021-2022 leaflet maps/parkMapResting.png')
+
+# grazing
+park.map.grazing = leaflet() %>% 
+  addPolygons(data = park, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = park.points2, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = park.points2, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+# 
+# mapshot(park.map.grazing, 
+#         url = '../figures/2021-2022 leaflet maps/parkMapGrazing.html',
+#         file = '../figures/2021-2022 leaflet maps/parkMapGrazing.png')
+
+```
+
+## CREEK
+```{r}
+# isolate pasture
+creek = subset(pastures, Pasture == 'Creek Pasture')
+
+# isolate points over pasture, transform to latlong (first rest, then graz)
+creek.points1 = st_intersection(creek, cattle.resting, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+creek.points2 = st_intersection(creek, cattle.grazing, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# transform park pasture
+creek = creek %>% st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# resting
+creek.map.resting = leaflet() %>% 
+  addPolygons(data = creek, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = creek.points1, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = creek.points1, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(creek.map.resting, 
+#         url = '../figures/2021-2022 leaflet maps/creekMapResting.html',
+#         file = '../figures/2021-2022 leaflet maps/creekMapResting.png')
+
+# grazing
+creek.map.grazing = leaflet() %>% 
+  addPolygons(data = creek, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = creek.points2, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = creek.points2, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(creek.map.grazing, 
+#         url = '../figures/2021-2022 leaflet maps/creekMapGrazing.html',
+#         file = '../figures/2021-2022 leaflet maps/creekMapGrazing.png')
+
+```
+
+## DRILL
+```{r}
+# isolate pasture
+drill = subset(pastures, Pasture == 'Drill Pasture')
+
+# isolate points over pasture, transform to latlong (first rest, then graz)
+drill.points1 = st_intersection(drill, cattle.resting, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+drill.points2 = st_intersection(drill, cattle.grazing, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# select every 12th point for plotting (10min -> 2hr interval)
+drill.points1 = drill.points1[seq(1, nrow(drill.points1), 12),]
+drill.points2 = drill.points1[seq(1, nrow(drill.points2), 12),]
+
+# transform park pasture
+drill = drill %>% st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# resting
+drill.map.resting = leaflet() %>% 
+  addPolygons(data = drill, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = drill.points1, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = drill.points1, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(drill.map.resting, 
+#         url = '../figures/2021-2022 leaflet maps/drillMapResting.html',
+#         file = '../figures/2021-2022 leaflet maps/drillMapResting.png')
+
+# grazing
+drill.map.grazing = leaflet() %>% 
+  addPolygons(data = drill, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = drill.points2, radius = .25,
+                   color = ~factpal(breed), opacity = .5) %>%
+  addLegend(data = drill.points2, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(drill.map.grazing, 
+#         url = '../figures/2021-2022 leaflet maps/drillMapGrazing.html',
+#         file = '../figures/2021-2022 leaflet maps/drillMapGrazing.png')
+
+```
+
+## DAVIS AND LAVENDER
+```{r}
+# isolate pasture
+davis.lav = subset(pastures, Pasture == 'Davis' |
+                     Pasture == 'Lavender')
+
+# isolate points over pasture, transform to latlong (first rest, then graz)
+davis.lav.points1 = st_intersection(davis.lav, cattle.resting, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+davis.lav.points2 = st_intersection(davis.lav, cattle.grazing, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# transform park pasture
+davis.lav = davis.lav %>% st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# resting
+davis.lav.map.resting = leaflet() %>% 
+  addPolygons(data = davis.lav, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = davis.lav.points1, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = davis.lav.points1, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(davis.lav.map.resting, 
+#         url = '../figures/2021-2022 leaflet maps/davis.lavMapResting.html',
+#         file = '../figures/2021-2022 leaflet maps/davis.lavMapResting.png')
+
+# grazing
+davis.lav.map.grazing = leaflet() %>% 
+  addPolygons(data = davis.lav, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = davis.lav.points2, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = davis.lav.points2, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(davis.lav.map.grazing, 
+#         url = '../figures/2021-2022 leaflet maps/davis.lavMapGrazing.html',
+#         file = '../figures/2021-2022 leaflet maps/davis.lavMapGrazing.png')
+
+```
+
+## CORRAL POCKET
+```{r}
+# isolate pasture
+corral = subset(pastures, Pasture == 'Corral Pocket')
+
+# isolate points over pasture, transform to latlong (first rest, then graz)
+corral.points1 = st_intersection(corral, cattle.resting, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+corral.points2 = st_intersection(corral, cattle.grazing, sparse = F) %>%
+  st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# transform park pasture
+corral = corral %>% st_transform(CRS("+proj=longlat +datum=WGS84"))
+
+# resting
+corral.map.resting = leaflet() %>% 
+  addPolygons(data = corral, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = corral.points1, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = corral.points1, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(corral.map.resting, 
+#         url = '../figures/2021-2022 leaflet maps/corralMapResting.html',
+#         file = '../figures/2021-2022 leaflet maps/corralMapResting.png')
+
+# grazing
+corral.map.grazing = leaflet() %>% 
+  addPolygons(data = corral, fill = NA, color = 'white') %>%
+  addCircleMarkers(data = corral.points2, radius = .25,
+                   color = ~factpal(breed), opacity = .25) %>%
+  addLegend(data = corral.points2, position = "topright", 
+            pal = factpal, values = ~breed,
+            opacity = 1) %>%
+  addProviderTiles("Esri.WorldImagery")
+
+# mapshot(corral.map.grazing, 
+#         url = '../figures/2021-2022 leaflet maps/corralMapGrazing.html',
+#         file = '../figures/2021-2022 leaflet maps/corralMapGrazing.png')
+#        selfcontained = FALSE)
+
+```
+

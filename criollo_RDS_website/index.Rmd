@@ -30,9 +30,10 @@ Below are the datasets I have available and am adding to the database:
 * GPS data (raw from the collars)
 
 ## Database structure
-Below is a schematic of the structure of my relational database. The next chapter will detail how the database was constructed.
+Below is a schematic of the structure of my relational database. Chapter 3 will detail how the database was constructed.
 
-![Schematic of database structure](../docs/database-design.PNG)
+<img src=`r markdown:::.b64EncodeFile("C:/Users/maria/Documents/RDS S23/Criollo_RDS/docs/database-design.png")`>
+
 
 
 
