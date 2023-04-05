@@ -10,3 +10,4 @@
 *.xml
 *.shx
 *.pptx
+!docs/database-design.png
