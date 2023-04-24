@@ -218,7 +218,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 2</span> Combine collar data from Lotek and ATS collars<a href="combine-collar-data-from-lotek-and-ats-collars.html#combine-collar-data-from-lotek-and-ats-collars" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="description" class="section level2 hasAnchor" number="2.1">
 <h2><span class="header-section-number">2.1</span> Description<a href="combine-collar-data-from-lotek-and-ats-collars.html#description" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>This code creates a database file called cattle.db and populates it with all my various .csv files. As it is now, this chapter has no narration between code chunks but I intend to go back and fill in some of the details later.</p>
+<p>We use two brands of collars for my project, ATS and Lotek. Each brand of collar
+has a slightly different spreadsheet output, so this code is needed to clean
+and combine the data from ATS and Lotek collars.</p>
+<p>This code reads in all the Lotek and ATS GPS .csv files, organizes them into
+the same format, and combines them into one .csv with the associated cow
+metadata (ear tag and breed). We need to do this before we create the database!</p>
+<p>Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
+This will be an issue in the future when we start re-using Lotek collars and
+have multiple cattle IDs associated with each Lotek collar. When this happens,
+I will need to add a section of code that looks not only at the collar ID but
+also at the dates to match collars to cows.</p>
 </div>
 <div id="read-lotek-collar-data" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Read Lotek collar data<a href="combine-collar-data-from-lotek-and-ats-collars.html#read-lotek-collar-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>

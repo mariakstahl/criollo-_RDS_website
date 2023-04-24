@@ -218,14 +218,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 3</span> Create cattle.db database<a href="create-cattle.db-database.html#create-cattle.db-database" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="description-1" class="section level2 hasAnchor" number="3.1">
 <h2><span class="header-section-number">3.1</span> Description<a href="create-cattle.db-database.html#description-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>This code reads in all the Lotek and ATS GPS .csv files, organizes them into
-the same format, and combines them into one .csv with the associated cow
-metadata (ear tag and breed). We need to do this before we create the database!</p>
-<p>Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
-This will be an issue in the future when we start re-using Lotek collars and
-have multiple cattle IDs associated with each Lotek collar. When this happens,
-I will need to add a section of code that looks not only at the collar ID but
-also at the dates to match collars to cows.</p>
+This code creates a relational database with all of my cattle-related data!
+Again, the data I have available is listed below:
+<ul>
+<li>
+Cow breed and ear tag ID
+</li>
+<li>
+Beef metrics (including weights and body condition scores)
+</li>
+<li>
+Diet sample data
+</li>
+<li>
+Collar deployment dates
+</li>
+<li>
+Collars (including brand and serial number)
+</li>
+<li>
+GPS data (raw from the collars)
+</li>
+</ul>
+<p>I will use SQL language to build a database with all these data, allowing me to
+easily access information of any kind from every individual in my study.</p>
 </div>
 <div id="create-cattle.db-file" class="section level2 hasAnchor" number="3.2">
 <h2><span class="header-section-number">3.2</span> create cattle.db file<a href="create-cattle.db-database.html#create-cattle.db-file" class="anchor-section" aria-label="Anchor link to header"></a></h2>

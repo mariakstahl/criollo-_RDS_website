@@ -22,12 +22,14 @@ For my dissertation, I am following a herd of 40 cows in San Juan County, UT. 20
 As part of this project, I am linking together many datasets into one relational database. Each cow as been equipped with GPS collars to track movement, and we have periodically collected morphometric data and fecal samples from the herd. 
 
 Below are the datasets I have available and am adding to the database:
-* Cow bread and ear tag ID
-* Beef metrics (including weights and body condition scores)
-* Diet sample data
-* Collar deployment dates
-* Collars (including brand and serial number)
-* GPS data (raw from the collars)
+<ul>
+<li>Cow breed and ear tag ID</li>
+<li>Beef metrics (including weights and body condition scores)</li>
+<li>Diet sample data</li>
+<li>Collar deployment dates</li>
+<li>Collars (including brand and serial number)</li>
+<li>GPS data (raw from the collars)</li>
+</ul>
 
 ## Database structure
 Below is a schematic of the structure of my relational database. Chapter 3 will detail how the database was constructed.

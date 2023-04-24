@@ -1,15 +1,19 @@
 # Create cattle.db database
 
 ## Description
-This code reads in all the Lotek and ATS GPS .csv files, organizes them into
-the same format, and combines them into one .csv with the associated cow
-metadata (ear tag and breed). We need to do this before we create the database!
+This code creates a relational database with all of my cattle-related data!
+Again, the data I have available is listed below:
+<ul>
+<li>Cow breed and ear tag ID</li>
+<li>Beef metrics (including weights and body condition scores)</li>
+<li>Diet sample data</li>
+<li>Collar deployment dates</li>
+<li>Collars (including brand and serial number)</li>
+<li>GPS data (raw from the collars)</li>
+</ul>
 
-Jan 2023: Lotek GPS files are matched with cattle ID based only on collar ID.
-This will be an issue in the future when we start re-using Lotek collars and
-have multiple cattle IDs associated with each Lotek collar. When this happens,
-I will need to add a section of code that looks not only at the collar ID but
-also at the dates to match collars to cows.
+I will use SQL language to build a database with all these data, allowing me to
+easily access information of any kind from every individual in my study.
 
 ```{r clean2, include=F}
 rm(list = ls())
