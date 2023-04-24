@@ -153,7 +153,7 @@ pastures = rbind(cwood, USU)
 The cattle rotate through several pastures in Indian Creek from October through
 May. This map shows roughly which months the cows were in each pasture in 2022.
 
-```{r psature_schedule, include = F}
+```{r psature_schedule, echo = F, warning = F, fig.dim = c(8, 10)}
 ### add column for season in pastures sf
 pastures = pastures %>%
   mutate(season = case_when(Pasture == 'Park Pasture' ~  'Jan-Feb',
@@ -193,10 +193,8 @@ ggplot() +
   geom_label(data = subset(pastures, short.name != 'NA'), 
                            aes(x = X, y = Y, label = short.name), size = 3.5) +
   scale_fill_manual(values = colors)
-
-ggsave('../docs/yearly_rotation.png', plot = last_plot(), scale = 1)
 ```
-<img src=`r markdown:::.b64EncodeFile("../docs/yearly_rotation.png")`>
+
 
 ## Interactive maps of each pasture
 In this section, I have created Leaflet maps of each pasture. Feel free to zoom
